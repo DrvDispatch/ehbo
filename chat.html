@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <title>EHBO AI Chat</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- VIEWPORT MET ZOOM-LOCK -->
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no"
+  />
 
   <!-- Markdown renderer + sanitizer -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -27,10 +31,15 @@
       box-sizing: border-box;
     }
 
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
     /* Mobile-first layout */
 
     body {
-      margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--bg-gradient);
       color: var(--text);
@@ -43,6 +52,7 @@
       margin: 0 auto;
       padding: 0.75rem 0.75rem 1rem;
       display: flex;
+      min-height: 100vh;
     }
 
     .card {
@@ -54,7 +64,6 @@
       position: relative;
       overflow: hidden;
 
-      /* make card fill height on mobile */
       display: flex;
       flex-direction: column;
       width: 100%;
@@ -75,6 +84,8 @@
       display: flex;
       flex-direction: column;
       flex: 1;
+      /* padding-bottom wordt door JS verhoogd bij open toetsenbord */
+      transition: padding-bottom 0.15s ease-out;
     }
 
     header {
@@ -386,8 +397,6 @@
   <script>
     /************* CONFIG *************/
     const GEMINI_API_KEY = "AIzaSyDLRKQ_2t9EPSK3R6DcftrrQUiSjMuSsE0"; // jouw key
-
-    // Sneller/beter model zonder thinkingConfig-issues:
     const MODEL_ID = "gemini-2.0-flash-exp";
 
     const GEMINI_URL =
@@ -408,6 +417,8 @@
     const messagesEl = document.getElementById("messages");
     const inputEl = document.getElementById("user-input");
     const sendBtn = document.getElementById("send-btn");
+    const cardInnerEl = document.querySelector(".card-inner");
+    const inputRowEl = document.getElementById("input-row");
 
     /************* MARKDOWN RENDERING *************/
     function renderMarkdown(mdText) {
@@ -504,6 +515,7 @@
       addMessage("user", text, false);
       inputEl.value = "";
       inputEl.focus();
+      ensureInputVisible();
 
       chatHistory.push({
         role: "user",
@@ -572,6 +584,42 @@
       }
     }
 
+    /************* INPUT / KEYBOARD VISIBILITY *************/
+    function ensureInputVisible() {
+      // Kleine delay zodat de browser eerst de keyboard-animatie start
+      setTimeout(() => {
+        try {
+          inputRowEl.scrollIntoView({
+            block: "end",
+            behavior: "smooth"
+          });
+        } catch (e) {
+          // oudere webviews zonder scrollIntoView opties
+          inputRowEl.scrollIntoView();
+        }
+      }, 50);
+    }
+
+    // Gebruik visualViewport als die bestaat (betere keyboard-detectie)
+    if (window.visualViewport) {
+      const vv = window.visualViewport;
+      const onViewportChange = () => {
+        // Verschil tussen window.innerHeight en visualViewport.height ~ keyboardhoogte
+        const keyboardHeight = window.innerHeight - vv.height;
+        if (keyboardHeight > 0) {
+          // keyboard is zichtbaar
+          cardInnerEl.style.paddingBottom = keyboardHeight + 16 + "px";
+          ensureInputVisible();
+        } else {
+          // keyboard weg
+          cardInnerEl.style.paddingBottom = "";
+        }
+      };
+
+      vv.addEventListener("resize", onViewportChange);
+      vv.addEventListener("scroll", onViewportChange);
+    }
+
     /************* EVENT HANDLERS *************/
     sendBtn.addEventListener("click", sendMessage);
 
@@ -580,6 +628,14 @@
         e.preventDefault();
         sendMessage();
       }
+    });
+
+    inputEl.addEventListener("focus", () => {
+      ensureInputVisible();
+    });
+
+    inputEl.addEventListener("input", () => {
+      ensureInputVisible();
     });
 
     // eerste vraag alvast invullen
