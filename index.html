@@ -465,12 +465,23 @@
 </main>
 
 <script>
-
   const subtitleStore = {};
 
   document.addEventListener("DOMContentLoaded", () => {
     const mediaElements = document.querySelectorAll("[data-srt]");
     mediaElements.forEach(setupMediaWithSubtitles);
+
+    // ➜ NIEUW: zorg dat nooit meerdere audios tegelijk spelen
+    const audioEls = document.querySelectorAll("audio");
+    audioEls.forEach((audio) => {
+      audio.addEventListener("play", () => {
+        audioEls.forEach((other) => {
+          if (other !== audio && !other.paused) {
+            other.pause();
+          }
+        });
+      });
+    });
   });
 
   async function setupMediaWithSubtitles(mediaEl) {
@@ -606,7 +617,6 @@
       );
       i++;
 
-      // Tekstregels tot lege lijn
       const textLines = [];
       while (i < lines.length && lines[i].trim() !== "") {
         textLines.push(lines[i]);
@@ -651,5 +661,6 @@
     });
   }
 </script>
+
 </body>
 </html>
