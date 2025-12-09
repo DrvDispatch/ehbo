@@ -23,7 +23,11 @@
       --radius-lg: 18px;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
+    /* Mobile-first layout */
 
     body {
       margin: 0;
@@ -31,25 +35,30 @@
       background: var(--bg-gradient);
       color: var(--text);
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1.25rem;
     }
 
     .wrapper {
       width: 100%;
       max-width: 780px;
+      margin: 0 auto;
+      padding: 0.75rem 0.75rem 1rem;
+      display: flex;
     }
 
     .card {
       background: var(--card);
       border-radius: var(--radius-lg);
       border: 1px solid rgba(148, 163, 184, 0.35);
-      padding: 1.25rem 1.3rem 1.1rem;
+      padding: 0.85rem 0.9rem 0.7rem;
       box-shadow: var(--shadow-soft);
       position: relative;
       overflow: hidden;
+
+      /* make card fill height on mobile */
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      min-height: calc(100vh - 1.5rem);
     }
 
     .card::before {
@@ -63,18 +72,21 @@
     .card-inner {
       position: relative;
       z-index: 1;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
     }
 
     header {
       display: flex;
       align-items: center;
-      gap: 0.65rem;
-      margin-bottom: 0.7rem;
+      gap: 0.55rem;
+      margin-bottom: 0.55rem;
     }
 
     .logo {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       border-radius: 999px;
       background: linear-gradient(135deg, var(--primary), var(--accent));
       display: flex;
@@ -82,10 +94,11 @@
       justify-content: center;
       color: #fff;
       font-weight: 800;
-      font-size: 1.1rem;
+      font-size: 1rem;
       box-shadow: 0 8px 20px rgba(37, 99, 235, 0.5);
       transform: translateY(0);
       animation: float 4s ease-in-out infinite;
+      flex-shrink: 0;
     }
 
     @keyframes float {
@@ -94,7 +107,7 @@
     }
 
     h1 {
-      font-size: 1.4rem;
+      font-size: 1.2rem;
       margin: 0;
       color: var(--primary-dark);
       letter-spacing: 0.02em;
@@ -104,7 +117,7 @@
       display: inline-flex;
       align-items: center;
       gap: 0.25rem;
-      padding: 0.15rem 0.55rem;
+      padding: 0.12rem 0.5rem;
       border-radius: 999px;
       background: #e0f2fe;
       color: #075985;
@@ -116,17 +129,16 @@
     }
 
     .subtitle {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: var(--muted);
-      margin: 0 0 0.75rem;
+      margin: 0 0 0.6rem;
     }
 
     #messages {
-      max-height: 420px;
-      min-height: 160px;
+      flex: 1;
       overflow-y: auto;
-      padding: 0.4rem 0.35rem 0.25rem;
-      margin-bottom: 0.6rem;
+      padding: 0.35rem 0.3rem 0.3rem;
+      margin-bottom: 0.45rem;
       font-size: 0.9rem;
       display: flex;
       flex-direction: column;
@@ -134,7 +146,7 @@
     }
 
     .msg {
-      padding: 0.5rem 0.7rem;
+      padding: 0.45rem 0.6rem;
       border-radius: 14px;
       line-height: 1.5;
       max-width: 90%;
@@ -214,17 +226,18 @@
 
     #input-row {
       display: flex;
-      gap: 0.45rem;
+      gap: 0.4rem;
       align-items: flex-end;
+      padding-top: 0.1rem;
     }
 
     #user-input {
       flex: 1;
       font-size: 0.9rem;
-      resize: vertical;
-      min-height: 2.6rem;
-      max-height: 6rem;
-      padding: 0.5rem 0.7rem;
+      resize: none;
+      min-height: 2.4rem;
+      max-height: 5.5rem;
+      padding: 0.55rem 0.7rem;
       border-radius: 999px;
       border: 1px solid var(--border);
       outline: none;
@@ -239,7 +252,7 @@
     button {
       border: none;
       border-radius: 999px;
-      padding: 0.55rem 1.2rem;
+      padding: 0.6rem 1.1rem;
       background: linear-gradient(135deg, var(--primary), #2563eb);
       color: white;
       font-weight: 600;
@@ -252,6 +265,7 @@
       box-shadow: 0 10px 18px rgba(37, 99, 235, 0.45);
       transform: translateY(0);
       transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+      flex-shrink: 0;
     }
 
     button:hover:not(:disabled) {
@@ -275,18 +289,57 @@
     }
 
     .footer-note {
-      margin-top: 0.5rem;
+      margin-top: 0.45rem;
       font-size: 0.75rem;
       color: var(--muted);
     }
 
-    @media (max-width: 640px) {
+    /* Desktop / tablet tweaks */
+    @media (min-width: 768px) {
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .wrapper {
+        padding: 1.5rem;
+      }
+
       .card {
-        padding-inline: 1rem;
+        padding: 1.25rem 1.3rem 1rem;
+        min-height: 600px;
+        max-height: 820px;
       }
 
       #messages {
-        max-height: 360px;
+        max-height: none;
+      }
+
+      h1 {
+        font-size: 1.4rem;
+      }
+
+      .subtitle {
+        font-size: 0.85rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        border-radius: 0;
+        box-shadow: none;
+        border-left: none;
+        border-right: none;
+        min-height: 100vh;
+      }
+
+      header {
+        margin-bottom: 0.4rem;
+      }
+
+      .footer-note {
+        font-size: 0.72rem;
       }
     }
   </style>
@@ -332,9 +385,10 @@
 
   <script>
     /************* CONFIG *************/
-    const GEMINI_API_KEY = "AIzaSyDLRKQ_2t9EPSK3R6DcftrrQUiSjMuSsE0"; // <— laat je key hier staan
+    const GEMINI_API_KEY = "AIzaSyDLRKQ_2t9EPSK3R6DcftrrQUiSjMuSsE0"; // jouw key
 
-    const MODEL_ID = "gemini-flash-lite-latest";
+    // Sneller/beter model zonder thinkingConfig-issues:
+    const MODEL_ID = "gemini-2.0-flash-exp";
 
     const GEMINI_URL =
       "https://generativelanguage.googleapis.com/v1beta/models/" +
@@ -342,7 +396,6 @@
       ":generateContent?key=" +
       encodeURIComponent(GEMINI_API_KEY);
 
-    // context file naast chat.html
     const CONTEXT_FILE = "./contextprompt.txt";
 
     /************* STATE *************/
@@ -410,7 +463,6 @@
       for (let i = messagesEl.children.length - 1; i >= 0; i--) {
         const child = messagesEl.children[i];
         if (child.classList.contains("model")) {
-          // rebuild to keep label + markdown formatting
           const replacement = createMessageElement("model", text, isMarkdown);
           messagesEl.replaceChild(replacement, child);
           messagesEl.scrollTop = messagesEl.scrollHeight;
@@ -467,7 +519,7 @@
         const body = {
           contents: chatHistory,
           generationConfig: {
-           
+            temperature: 0.4
           }
         };
 
@@ -533,7 +585,7 @@
     // eerste vraag alvast invullen
     inputEl.value = "Wat moet ik doen bij een beroerte?";
 
-    // probeer context alvast te laden zodat je meteen ziet of het werkt
+    // context alvast proberen te laden
     ensureSystemContextLoaded();
   </script>
 </body>
