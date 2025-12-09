@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>EHBO AI Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Markdown renderer + sanitizer -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #0b7cc6;
+      --primary-dark: #06406b;
+      --accent: #ffb100;
+      --bg-gradient: radial-gradient(circle at top, #e0f2ff 0, #f5f7fb 45%, #eef2ff 100%);
+      --card: #ffffff;
+      --border: #dde2ee;
+      --text: #111827;
+      --muted: #6b7280;
+      --shadow-soft: 0 16px 40px rgba(15, 23, 42, 0.18);
+      --radius-lg: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 780px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      padding: 1.25rem 1.3rem 1.1rem;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(11, 124, 198, 0.12), transparent 55%);
+      pointer-events: none;
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 1.1rem;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.5);
+      transform: translateY(0);
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      margin: 0;
+      color: var(--primary-dark);
+      letter-spacing: 0.02em;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #075985;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.15rem;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin: 0 0 0.75rem;
+    }
+
+    #messages {
+      max-height: 420px;
+      min-height: 160px;
+      overflow-y: auto;
+      padding: 0.4rem 0.35rem 0.25rem;
+      margin-bottom: 0.6rem;
+      font-size: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .msg {
+      padding: 0.5rem 0.7rem;
+      border-radius: 14px;
+      line-height: 1.5;
+      max-width: 90%;
+      position: relative;
+      animation: fadeIn 0.18s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(3px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, #e0f2fe, #bfdbfe);
+      border-bottom-right-radius: 4px;
+    }
+
+    .msg.model {
+      align-self: flex-start;
+      background: #f3f4f6;
+      border-bottom-left-radius: 4px;
+    }
+
+    .msg.system {
+      align-self: center;
+      background: #fef3c7;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      color: #854d0e;
+      padding-inline: 0.8rem;
+      max-width: 100%;
+    }
+
+    .msg-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #6b7280;
+      margin-bottom: 0.1rem;
+    }
+
+    .msg.user .msg-label {
+      text-align: right;
+    }
+
+    .msg-body {
+      white-space: normal;
+      word-wrap: break-word;
+    }
+
+    /* Markdown styling inside AI messages */
+    .msg-body h1,
+    .msg-body h2,
+    .msg-body h3 {
+      font-size: 0.95rem;
+      margin: 0.15rem 0 0.1rem;
+    }
+
+    .msg-body p {
+      margin: 0 0 0.3rem;
+    }
+
+    .msg-body ul,
+    .msg-body ol {
+      padding-left: 1.1rem;
+      margin: 0.1rem 0 0.35rem;
+    }
+
+    .msg-body li {
+      margin-bottom: 0.1rem;
+    }
+
+    .msg-body strong {
+      font-weight: 600;
+    }
+
+    #input-row {
+      display: flex;
+      gap: 0.45rem;
+      align-items: flex-end;
+    }
+
+    #user-input {
+      flex: 1;
+      font-size: 0.9rem;
+      resize: vertical;
+      min-height: 2.6rem;
+      max-height: 6rem;
+      padding: 0.5rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    #user-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.18);
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 0.55rem 1.2rem;
+      background: linear-gradient(135deg, var(--primary), #2563eb);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      box-shadow: 0 10px 18px rgba(37, 99, 235, 0.45);
+      transform: translateY(0);
+      transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 26px rgba(37, 99, 235, 0.55);
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(0);
+      box-shadow: 0 8px 16px rgba(37, 99, 235, 0.4);
+    }
+
+    button:disabled {
+      opacity: 0.7;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .btn-icon {
+      font-size: 1rem;
+    }
+
+    .footer-note {
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    @media (max-width: 640px) {
+      .card {
+        padding-inline: 1rem;
+      }
+
+      #messages {
+        max-height: 360px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="card">
+      <div class="card-inner">
+        <header>
+          <div class="logo">EH</div>
+          <div>
+            <div class="badge">⛑️ EHBO assistent</div>
+            <h1>EHBO AI Chat</h1>
+          </div>
+        </header>
+
+        <p class="subtitle">
+          Stel hier je vragen over EHBO. In een echte noodsituatie: bel altijd
+          <strong>112</strong>. De antwoorden zijn bedoeld als extra uitleg bij je cursus.
+        </p>
+
+        <div id="messages"></div>
+
+        <div id="input-row">
+          <textarea
+            id="user-input"
+            placeholder="Bijvoorbeeld: Wat moet ik doen bij een beroerte?"
+          ></textarea>
+          <button id="send-btn" type="button">
+            <span class="btn-icon">➤</span>
+            <span>Stuur</span>
+          </button>
+        </div>
+
+        <p class="footer-note">
+          Tip: stel concrete vragen, bijvoorbeeld
+          <em>“Welke stappen volg ik bij een beroerte?”</em> of
+          <em>“Hoe herken ik een flauwte?”</em>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /************* CONFIG *************/
+    const GEMINI_API_KEY = "AIzaSyDLRKQ_2t9EPSK3R6DcftrrQUiSjMuSsE0"; // <— laat je key hier staan
+
+    const MODEL_ID = "gemini-flash-lite-latest";
+
+    const GEMINI_URL =
+      "https://generativelanguage.googleapis.com/v1beta/models/" +
+      MODEL_ID +
+      ":generateContent?key=" +
+      encodeURIComponent(GEMINI_API_KEY);
+
+    // context file naast chat.html
+    const CONTEXT_FILE = "./contextprompt.txt";
+
+    /************* STATE *************/
+    const chatHistory = [];
+
+    let systemContextText = null;
+    let systemContextLoaded = false;
+    let systemContextFailed = false;
+
+    const messagesEl = document.getElementById("messages");
+    const inputEl = document.getElementById("user-input");
+    const sendBtn = document.getElementById("send-btn");
+
+    /************* MARKDOWN RENDERING *************/
+    function renderMarkdown(mdText) {
+      if (!window.marked || !window.DOMPurify) {
+        return mdText;
+      }
+      const rawHtml = marked.parse(mdText, {
+        breaks: true,
+        gfm: true
+      });
+      return DOMPurify.sanitize(rawHtml);
+    }
+
+    /************* UI HELPERS *************/
+    function createMessageElement(role, text, isMarkdown = false) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "msg " + role;
+
+      if (role === "system") {
+        wrapper.textContent = text;
+        return wrapper;
+      }
+
+      const label = document.createElement("div");
+      label.className = "msg-label";
+      label.textContent = role === "user" ? "Jij" : "EHBO-AI";
+
+      const body = document.createElement("div");
+      body.className = "msg-body";
+
+      if (isMarkdown && role === "model") {
+        body.innerHTML = renderMarkdown(text);
+      } else {
+        body.textContent = text;
+      }
+
+      wrapper.appendChild(label);
+      wrapper.appendChild(body);
+      return wrapper;
+    }
+
+    function addMessage(role, text, isMarkdown = false) {
+      const el = createMessageElement(role, text, isMarkdown);
+      messagesEl.appendChild(el);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function setThinkingMessage() {
+      addMessage("model", "Even nadenken…", false);
+    }
+
+    function updateLastModelMessage(text, isMarkdown = false) {
+      for (let i = messagesEl.children.length - 1; i >= 0; i--) {
+        const child = messagesEl.children[i];
+        if (child.classList.contains("model")) {
+          // rebuild to keep label + markdown formatting
+          const replacement = createMessageElement("model", text, isMarkdown);
+          messagesEl.replaceChild(replacement, child);
+          messagesEl.scrollTop = messagesEl.scrollHeight;
+          return;
+        }
+      }
+      addMessage("model", text, isMarkdown);
+    }
+
+    /************* CONTEXT LOAD *************/
+    async function ensureSystemContextLoaded() {
+      if (systemContextLoaded || systemContextFailed) return;
+
+      try {
+        const res = await fetch(CONTEXT_FILE);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        systemContextText = await res.text();
+        systemContextLoaded = true;
+
+        addMessage(
+          "system",
+          "Cursus-context geladen. Antwoorden worden afgestemd op jouw EHBO-lesmateriaal."
+        );
+      } catch (err) {
+        console.error("Kon contextprompt.txt niet laden:", err);
+        systemContextFailed = true;
+        addMessage(
+          "system",
+          "Kon de cursus-context niet laden. Antwoorden zijn algemener."
+        );
+      }
+    }
+
+    /************* SEND MESSAGE *************/
+    async function sendMessage() {
+      const text = (inputEl.value || "").trim();
+      if (!text) return;
+
+      addMessage("user", text, false);
+      inputEl.value = "";
+      inputEl.focus();
+
+      chatHistory.push({
+        role: "user",
+        parts: [{ text }]
+      });
+
+      sendBtn.disabled = true;
+      setThinkingMessage();
+
+      try {
+        await ensureSystemContextLoaded();
+
+        const body = {
+          contents: chatHistory,
+          generationConfig: {
+            // als dit problemen geeft met dit model, kun je thinkingConfig weglaten
+            thinkingConfig: {
+              thinkingBudget: -1
+            }
+          }
+        };
+
+        if (systemContextText && !systemContextFailed) {
+          body.systemInstruction = {
+            role: "user",
+            parts: [
+              {
+                text:
+                  "Je bent een EHBO-cursus-assistent. Gebruik de volgende cursusinformatie " +
+                  "als basis voor je antwoorden. Antwoord in helder Nederlands, in stappen, " +
+                  "en verwijs bij echte noodsituaties altijd naar 112.\n\n" +
+                  systemContextText
+              }
+            ]
+          };
+        }
+
+        const res = await fetch(GEMINI_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+
+        if (!res.ok) {
+          throw new Error("HTTP " + res.status);
+        }
+
+        const data = await res.json();
+        const candidates = data.candidates || [];
+        const parts = candidates[0]?.content?.parts || [];
+        const reply =
+          parts.map((p) => p.text || "").join(" ").trim() ||
+          "Geen antwoord ontvangen.";
+
+        updateLastModelMessage(reply, true);
+
+        chatHistory.push({
+          role: "model",
+          parts: [{ text: reply }]
+        });
+      } catch (err) {
+        console.error(err);
+        updateLastModelMessage(
+          "Er ging iets mis bij het ophalen van het AI-antwoord.",
+          false
+        );
+      } finally {
+        sendBtn.disabled = false;
+      }
+    }
+
+    /************* EVENT HANDLERS *************/
+    sendBtn.addEventListener("click", sendMessage);
+
+    inputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // eerste vraag alvast invullen
+    inputEl.value = "Wat moet ik doen bij een beroerte?";
+
+    // probeer context alvast te laden zodat je meteen ziet of het werkt
+    ensureSystemContextLoaded();
+  </script>
+</body>
+</html>

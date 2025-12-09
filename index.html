@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>EHBO bij flauwte</title>
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+/>
+  <style>
+    :root {
+      --primary: #0b7cc6;
+      --primary-dark: #08588b;
+      --accent: #ffb100;
+      --bg: #f5f7fb;
+      --text: #222;
+      --muted: #666;
+      --card: #ffffff;
+      --border: #dde2ee;
+      --danger: #e53935;
+      --radius: 10px;
+      --shadow-soft: 0 8px 18px rgba(0, 0, 0, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      scroll-behavior: smooth;
+    }
+
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #e2e6f0;
+    }
+
+    .nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.6rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      text-decoration: none;
+    }
+
+    .nav-logo-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 10px rgba(11, 124, 198, 0.35);
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      font-size: 0.95rem;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--muted);
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .nav-links a:hover,
+    .nav-links a:focus {
+      background: var(--primary);
+      color: #fff;
+      outline: none;
+    }
+
+    /* Layout */
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 3rem;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 1.2rem 1.3rem;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft);
+      margin-bottom: 1.8rem;
+    }
+
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.15rem 0.65rem 0.2rem;
+      border-radius: 999px;
+      background: #e5f3ff;
+      color: var(--primary-dark);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.6rem;
+    }
+
+    .hero-pill span.icon {
+      font-size: 0.9rem;
+    }
+
+    h1, h2, h3 {
+      margin-top: 0;
+      margin-bottom: 0.35rem;
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .section-subtitle {
+      margin-top: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      max-width: 680px;
+      margin-bottom: 0.8rem;
+    }
+
+    .key-line {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-top: 0.3rem;
+      margin-bottom: 0.4rem;
+    }
+
+    ul {
+      margin: 0.4rem 0 0.5rem 1.1rem;
+      padding: 0;
+      font-size: 0.92rem;
+    }
+
+    li + li {
+      margin-top: 0.1rem;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .highlight-danger {
+      color: var(--danger);
+      font-weight: 600;
+    }
+
+    .step-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: #e8f5e9;
+      color: #2e7d32;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-top: 0.6rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .step-tag span {
+      font-size: 0.9rem;
+    }
+
+    /* Media & subtitles */
+
+    audio,
+    video {
+      width: 100%;
+      margin-top: 0.3rem;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    .subtitle-box {
+      margin-top: 0.45rem;
+      min-height: 2.4em;
+      padding: 0.6rem 0.75rem;
+      border-radius: 8px;
+      background: #0d1117;
+      color: #f9fafb;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      border: 1px solid #24292f;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+    }
+
+    .subtitle-box.empty {
+      opacity: 0.4;
+    }
+
+    .subtitle-box .word {
+      padding: 0 0.03em;
+    }
+
+    .subtitle-box .word.current {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+    }
+
+    .subtitle-box.inactive {
+      background: #101827;
+      color: #a0aec0;
+    }
+
+
+    @media (max-width: 640px) {
+      .nav {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      main {
+        padding-inline: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <nav class="nav">
+    <a href="#top" class="nav-logo">
+      <div class="nav-logo-mark">E</div>
+      <span>EHBO Flauwte</span>
+    </a>
+    <div class="nav-links">
+      <a href="#wat-is-flauwte">Flauwte</a>
+      <a href="#stappenplan">Stappenplan</a>
+      <a href="#video">Video</a>
+      <a href="#preventie">Preventie</a>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+  <section id="wat-is-flauwte" class="card">
+    <div class="hero-pill">
+      <span class="icon">⛑️</span>
+      EHBO bij flauwte
+    </div>
+    <h1 class="section-title">Wat is een flauwte?</h1>
+
+    <audio
+      id="audio-uitleg"
+      controls
+      preload="metadata"
+      data-srt="flauwte_uitleg_eng.srt"
+      data-subtitle-target="#subs-uitleg"
+    >
+      <source src="flauwte_uitleg.mp3" type="audio/mpeg" />
+      Je browser ondersteunt het audio-element niet.
+    </audio>
+    <div
+      id="subs-uitleg"
+      class="subtitle-box empty inactive"
+      aria-live="polite"
+    ></div>
+
+    <p class="key-line">
+      <strong>Flauwte = kort bewustzijnsverlies</strong> door tijdelijk te weinig
+      bloed en zuurstof in de hersenen.
+    </p>
+    <p>
+      Meestal is het onschuldig, maar je moet het altijd serieus nemen
+      en de toestand goed opvolgen.
+    </p>
+    <p><strong>Waarschuwingssignalen:</strong></p>
+    <ul>
+      <li>bleek en duizelig worden;</li>
+      <li>zwarte vlekken zien, oorsuizen;</li>
+      <li>zwakte, misselijkheid, koud‑klamme huid;</li>
+      <li>tintelingen, geeuwen, kunnen neerzakken en kort bewusteloos zijn.</li>
+    </ul>
+  </section>
+
+  <section id="stappenplan" class="card">
+    <h2 class="section-title">Stappenplan bij flauwte (EHBO)</h2>
+    <p class="section-subtitle">
+      Volg deze 4 stappen: <strong>Zorg voor veiligheid</strong>,
+      <strong>Beoordeel de vitale functies</strong>,
+      <strong>Alarmeer de hulpdiensten</strong>,
+      <strong>Verleen verdere eerste hulp</strong>.
+    </p>
+
+    <audio
+      id="audio-stappenplan"
+      controls
+      preload="metadata"
+      data-srt="stappenplan_verbaal_eng.srt"
+      data-subtitle-target="#subs-stappenplan"
+    >
+      <source src="stappenplan_verbaal.mp3" type="audio/mpeg" />
+      Je browser ondersteunt het audio-element niet.
+    </audio>
+    <div
+      id="subs-stappenplan"
+      class="subtitle-box empty inactive"
+      aria-live="polite"
+    ></div>
+
+    <div class="step-tag"><span>1</span> Zorg voor veiligheid</div>
+    <p>Denk aan <strong>je eigen veiligheid</strong> en die van het slachtoffer.</p>
+    <ul>
+      <li>
+        Zie je een flauwte aankomen, ondersteun het slachtoffer dan
+        (bijv. met de Rautek‑techniek) zodat het niet valt.
+      </li>
+      <li>Leg de persoon plat op de rug op een veilige plek.</li>
+      <li>
+        Til de benen ongeveer <strong>30–40 cm</strong> omhoog zodat de
+        bloedtoevoer naar het hoofd verbetert.
+      </li>
+    </ul>
+
+    <div class="step-tag"><span>2</span> Beoordeel de vitale functies</div>
+    <p>(controleer de toestand)</p>
+    <ul>
+      <li>
+        Controleer het <strong>bewustzijn</strong> door duidelijk te spreken
+        en voorzichtig aan de schouders te schudden.
+      </li>
+      <li>
+        Reageert het slachtoffer niet, open dan de
+        <strong>luchtweg</strong> en controleer
+        <strong>10 seconden</strong> lang de ademhaling.
+      </li>
+      <li>Is de ademhaling normaal, ga dan verder met stap 3.</li>
+    </ul>
+
+    <div class="step-tag"><span>3</span> Alarmeer de hulpdiensten</div>
+    <p>(schakel hulp in)</p>
+    <ul>
+      <li>
+        Vraag gespecialiseerde hulp bij flauwtes zonder duidelijke oorzaak,
+        bij herhaald flauwvallen, vermoedelijke hartproblemen
+        of een klap op het hoofd.
+      </li>
+      <li>
+        Bel <span class="highlight-danger">112</span> wanneer het slachtoffer
+        niet binnen <strong>twee minuten</strong> bij bewustzijn komt.
+      </li>
+    </ul>
+
+    <div class="step-tag"><span>4</span> Verleen verdere eerste hulp</div>
+    <ul>
+      <li>Zorg voor frisse lucht en vraag omstanders afstand te houden.</li>
+      <li>Maak knellende kleding los.</li>
+      <li>Leg een koud kompres of vochtig washandje op het voorhoofd.</li>
+      <li>
+        Wanneer het slachtoffer bijkomt, laat hem dan rustig rechtkomen:
+        eerst halfzittend, daarna zittend en pas daarna staan.
+      </li>
+      <li>
+        Voelt iemand zich opnieuw flauw, leg hem dan meteen weer neer
+        en breng de benen opnieuw omhoog.
+      </li>
+      <li>Controleer of er letsels zijn door de val.</li>
+      <li>
+        Blijft iemand bewusteloos maar ademt hij normaal,
+        leg hem dan in <strong>stabiele zijligging</strong>
+        en controleer regelmatig de ademhaling.
+      </li>
+    </ul>
+
+    <p class="muted">
+      Volg in een noodsituatie eerst deze 4 stappen.
+    </p>
+  </section>
+
+  <section id="video" class="card">
+    <h2 class="section-title">Instructievideo</h2>
+    <p class="section-subtitle">
+      In deze video worden de stappen bij flauwte voorgedaan.
+    </p>
+    <video
+      id="video-stappenplan"
+      controls
+      preload="metadata"
+      poster=""
+    >
+      <source src="stappenplan_video.mp4" type="video/mp4" />
+      Je browser ondersteunt het video-element niet.
+    </video>
+  </section>
+
+  <section id="preventie" class="card">
+    <h2 class="section-title">Preventie van flauwte</h2>
+
+    <audio
+      id="audio-preventie"
+      controls
+      preload="metadata"
+      data-srt="flauwte_preventie_eng.srt"
+      data-subtitle-target="#subs-preventie"
+    >
+      <source src="flauwte_preventie.mp3" type="audio/mpeg" />
+      Je browser ondersteunt het audio-element niet.
+    </audio>
+    <div
+      id="subs-preventie"
+      class="subtitle-box empty inactive"
+      aria-live="polite"
+    ></div>
+
+    <p class="key-line">
+      <strong>Voel je een flauwte opkomen, ga zo snel mogelijk liggen.</strong>
+    </p>
+    <p>Als liggen niet kan, gebruik spierpompoefeningen:</p>
+    <ul>
+      <li>kruis je onderbenen en span ze stevig aan;</li>
+      <li>even hurken en rustig weer opstaan;</li>
+      <li>voorover buigen;</li>
+      <li>op je tenen gaan staan en je beenspieren hard aanspannen.</li>
+    </ul>
+    <p>Verder:</p>
+    <ul>
+      <li>Drink voldoende water.</li>
+      <li>Vermijd lang rechtstaan in warme drukte.</li>
+      <li>Eet regelmatig om een te lage bloedsuiker te voorkomen.</li>
+      <li>
+        Weet je dat je snel flauwvalt, meld dit vooraf bij medische handelingen
+        zodat je liggend geholpen kunt worden.
+      </li>
+    </ul>
+  </section>
+</main>
+
+<script>
+
+  const subtitleStore = {};
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const mediaElements = document.querySelectorAll("[data-srt]");
+    mediaElements.forEach(setupMediaWithSubtitles);
+  });
+
+  async function setupMediaWithSubtitles(mediaEl) {
+    const srtUrl = mediaEl.getAttribute("data-srt");
+    const targetSelector = mediaEl.getAttribute("data-subtitle-target");
+    const subtitleBox = document.querySelector(targetSelector);
+
+    if (!srtUrl || !subtitleBox) return;
+
+    try {
+      const res = await fetch(srtUrl);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const srtText = await res.text();
+      const cues = buildWordTimedCues(parseSrt(srtText));
+
+      subtitleStore[mediaEl.id] = { cues, subtitleBox };
+
+      mediaEl.addEventListener("play", () => {
+        subtitleBox.classList.remove("inactive");
+      });
+
+      mediaEl.addEventListener("timeupdate", () => {
+        updateSubtitle(mediaEl);
+      });
+
+      mediaEl.addEventListener("seeking", () => {
+        updateSubtitle(mediaEl);
+      });
+
+      mediaEl.addEventListener("ended", () => {
+        subtitleBox.textContent = "";
+        subtitleBox.classList.add("inactive", "empty");
+      });
+    } catch (err) {
+      console.error("Kon SRT niet laden:", err);
+      subtitleBox.textContent = "Subtitles niet beschikbaar.";
+      subtitleBox.classList.add("inactive");
+    }
+  }
+
+  function updateSubtitle(mediaEl) {
+    const data = subtitleStore[mediaEl.id];
+    if (!data) return;
+    const { cues, subtitleBox } = data;
+    const t = mediaEl.currentTime;
+
+    const cue = cues.find((c) => t >= c.start && t <= c.end);
+    if (!cue) {
+      if (!subtitleBox.classList.contains("empty")) {
+        subtitleBox.textContent = "";
+        subtitleBox.classList.add("empty");
+      }
+      return;
+    }
+
+    subtitleBox.classList.remove("empty");
+    const word =
+      cue.words.find((w) => t >= w.start && t <= w.end) ||
+      cue.words[cue.words.length - 1];
+
+    const html = cue.words
+      .map((w) => {
+        const safe = escapeHtml(w.text);
+        if (w === word) {
+          return '<span class="word current">' + safe + "</span>";
+        }
+        return '<span class="word">' + safe + "</span>";
+      })
+      .join(" ");
+
+    subtitleBox.innerHTML = html;
+  }
+
+  function buildWordTimedCues(cues) {
+    return cues.map((cue) => {
+      const textSingleLine = cue.text.replace(/\s+/g, " ").trim();
+      const parts = textSingleLine.length ? textSingleLine.split(" ") : [];
+      const duration = cue.end - cue.start;
+      const wordDuration = parts.length ? duration / parts.length : duration;
+      const words = [];
+
+      parts.forEach((word, idx) => {
+        const start = cue.start + idx * wordDuration;
+        const end =
+          idx === parts.length - 1
+            ? cue.end
+            : cue.start + (idx + 1) * wordDuration;
+        words.push({ text: word, start, end });
+      });
+
+      return { ...cue, words };
+    });
+  }
+
+  function parseSrt(srtText) {
+    const lines = srtText.replace(/\r/g, "").split("\n");
+    const cues = [];
+    let i = 0;
+
+    while (i < lines.length) {
+      let line = lines[i].trim();
+
+      if (!line) {
+        i++;
+        continue;
+      }
+
+      if (/^\d+$/.test(line)) {
+        i++;
+        if (i >= lines.length) break;
+        line = lines[i].trim();
+      }
+
+      const timeMatch = line.match(
+        /(\d+):(\d+):(\d+),(\d+)\s*\-\-\>\s*(\d+):(\d+):(\d+),(\d+)/
+      );
+      if (!timeMatch) {
+        i++;
+        continue;
+      }
+
+      const start = toSeconds(
+        timeMatch[1],
+        timeMatch[2],
+        timeMatch[3],
+        timeMatch[4]
+      );
+      const end = toSeconds(
+        timeMatch[5],
+        timeMatch[6],
+        timeMatch[7],
+        timeMatch[8]
+      );
+      i++;
+
+      // Tekstregels tot lege lijn
+      const textLines = [];
+      while (i < lines.length && lines[i].trim() !== "") {
+        textLines.push(lines[i]);
+        i++;
+      }
+
+      cues.push({
+        start,
+        end,
+        text: textLines.join(" ").trim(),
+      });
+
+      i++; // lege lijn
+    }
+
+    return cues;
+  }
+
+  function toSeconds(h, m, s, ms) {
+    return (
+      parseInt(h, 10) * 3600 +
+      parseInt(m, 10) * 60 +
+      parseInt(s, 10) +
+      parseInt(ms, 10) / 1000
+    );
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/[&<>"]/g, (ch) => {
+      switch (ch) {
+        case "&":
+          return "&amp;";
+        case "<":
+          return "&lt;";
+        case ">":
+          return "&gt;";
+        case '"':
+          return "&quot;";
+        default:
+          return ch;
+      }
+    });
+  }
+</script>
+</body>
+</html>
